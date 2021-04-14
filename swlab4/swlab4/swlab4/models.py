@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Client(models.Model):
-    username = models.CharField(max_length=256)
+    username = models.CharField(max_length=256, unique=True)
     password = models.CharField(max_length=256)
     mobile = models.CharField(max_length=11)
     email = models.EmailField()
