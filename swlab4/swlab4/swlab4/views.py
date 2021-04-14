@@ -16,12 +16,15 @@ class GatewayAPI(viewsets.ViewSet):
 
     """
 
-    def list(self, request):
+    def list(self, request):  # todo block calling service after 3 unsuccessful attempts
         request_type = request.data["type"]
+
         if request_type == 'client-register':
             return self.client_register(request.data)
         if request_type == 'client-login':
             return self.client_login(request.data)
+        if request_type == 'client-profile-view':
+            return self.client_profile_view(request.data)
         return Response("")
 
     def client_register(self, data):
@@ -31,6 +34,11 @@ class GatewayAPI(viewsets.ViewSet):
 
     def client_login(self, data):
         url = 'http://127.0.0.1:8000/api/client-login'
+        x = requests.post(url, data=data)
+        return Response(x.text)
+
+    def client_profile_view(self, data):
+        url = 'http://127.0.0.1:8000/api/client-profile-view'
         x = requests.post(url, data=data)
         return Response(x.text)
 
@@ -79,6 +87,37 @@ class ClientLogin(viewsets.ViewSet):
             token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(100))
             client.token = token
             client.token_generation_time = datetime.datetime.now()
+            client.save()
             return Response(client.token)
         else:
             return Response("Username or password are wrong!")
+
+
+def time_to_int(dt):
+    return int(dt.strftime("%Y%m%d%H%M%S"))
+
+class ClientProfileView(viewsets.ViewSet):
+    """
+    Sample input:
+
+        {
+        "type": "client-profile-view",
+        "token": "dasgjhfjdahfjdhuisydfauyifusdycadfsycoyufsdc"
+        }
+    """
+
+    def list(self, request):
+        data = request.data
+        token = data['token']
+        client = Client.objects.get(token=token)
+        if not client:
+            return Response("Token is wrong!")
+        if time_to_int(client.token_generation_time + datetime.timedelta(hours=1))\
+                > time_to_int(datetime.datetime.now()):
+            client.token_generation_time = datetime.datetime.now()
+            return Response({"username": client.username,
+                             "email": client.email,
+                             "mobile": client.mobile
+                             })
+        else:
+            return Response("Token has expired!")
