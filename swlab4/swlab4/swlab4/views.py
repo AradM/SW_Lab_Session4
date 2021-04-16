@@ -8,6 +8,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from swlab4.swlab4.models import Client
+from swlab4.swlab4.models import Admin
 
 
 class GatewayAPI(viewsets.ViewSet):
@@ -27,6 +28,8 @@ class GatewayAPI(viewsets.ViewSet):
             return self.client_profile_view(request.data)
         if request_type == 'client-profile-update':
             return self.client_profile_update(request.data)
+        if request_type == 'admin-register':
+            return self.admin_register(request.data)
         return Response("")
 
     def client_register(self, data):
@@ -46,6 +49,11 @@ class GatewayAPI(viewsets.ViewSet):
 
     def client_profile_update(self, data):
         url = 'http://127.0.0.1:8000/api/client-profile-update'
+        x = requests.post(url, data=data)
+        return Response(x.text)
+
+    def admin_register(self, data):
+        url = 'http://127.0.0.1:8000/api/admin-register'
         x = requests.post(url, data=data)
         return Response(x.text)
 
@@ -158,3 +166,27 @@ class ClientProfileUpdate(viewsets.ViewSet):
             return Response("Successfully updated")
         else:
             return Response("Token has expired!")
+
+
+class AdminRegister(viewsets.ViewSet):
+    """
+    Sample input:
+
+        {
+        "type": "admin-register",
+        "username": "Arad",
+        "password": "1234",
+        "email": "arad.mohammadi99@gmail.com",
+        "mobile": "09123385973"
+        }
+    """
+
+    def list(self, request):
+        data = request.data
+        admin = Admin()
+        admin.username = data['username']
+        admin.password = data['password']
+        admin.email = data['email']
+        admin.mobile = data['mobile']
+        admin.save()
+        return Response("Admin registered successfully!")
