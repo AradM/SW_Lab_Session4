@@ -10,6 +10,16 @@ from rest_framework.response import Response
 from swlab4.swlab4.models import Client
 from swlab4.swlab4.models import Admin
 
+services_unavailability = {"client-login": 0,
+                           "client-register": 0,
+                           "client-view": 0,
+                           "client-update": 0,
+                           "admin-login": 0,
+                           "admin-register": 0,
+                           "admin-view": 0,
+                           "admin-update": 0,
+                           }
+
 
 class GatewayAPI(viewsets.ViewSet):
     """
@@ -21,21 +31,61 @@ class GatewayAPI(viewsets.ViewSet):
         request_type = request.data["type"]
 
         if request_type == 'client-register':
-            return self.client_register(request.data)
+            try:
+                return self.client_register(request.data)
+            except:
+                services_unavailability['client-register'] += 1
+                if services_unavailability['client-register'] >= 3:
+                    return Response("service unavailable")
         if request_type == 'client-login':
-            return self.client_login(request.data)
+            try:
+                return self.client_login(request.data)
+            except:
+                services_unavailability['client-login'] += 1
+                if services_unavailability['client-login'] >= 3:
+                    return Response("service unavailable")
         if request_type == 'client-profile-view':
-            return self.client_profile_view(request.data)
+            try:
+                return self.client_profile_view(request.data)
+            except:
+                services_unavailability['client-view'] += 1
+                if services_unavailability['client-view'] >= 3:
+                    return Response("service unavailable")
         if request_type == 'client-profile-update':
-            return self.client_profile_update(request.data)
+            try:
+                return self.client_profile_update(request.data)
+            except:
+                services_unavailability['client-update'] += 1
+                if services_unavailability['client-update'] >= 3:
+                    return Response("service unavailable")
         if request_type == 'admin-register':
-            return self.admin_register(request.data)
+            try:
+                return self.admin_register(request.data)
+            except:
+                services_unavailability['admin-register'] += 1
+                if services_unavailability['admin-register'] >= 3:
+                    return Response("service unavailable")
         if request_type == 'admin-login':
-            return self.admin_login(request.data)
+            try:
+                return self.admin_login(request.data)
+            except:
+                services_unavailability['admin-login'] += 1
+                if services_unavailability['admin-login'] >= 3:
+                    return Response("service unavailable")
         if request_type == 'admin-profile-view':
-            return self.admin_profile_view(request.data)
+            try:
+                return self.admin_profile_view(request.data)
+            except:
+                services_unavailability['admin-view'] += 1
+                if services_unavailability['admin-view'] >= 3:
+                    return Response("service unavailable")
         if request_type == 'admin-profile-update':
-            return self.admin_profile_update(request.data)
+            try:
+                return self.admin_profile_update(request.data)
+            except:
+                services_unavailability['admin-update'] += 1
+                if services_unavailability['admin-update'] >= 3:
+                    return Response("service unavailable")
 
         return Response("")
 
