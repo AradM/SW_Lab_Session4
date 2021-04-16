@@ -150,8 +150,8 @@ class ClientProfileView(viewsets.ViewSet):
         client = Client.objects.get(token=token)
         if not client:
             return Response("Token is wrong!")
-        if time_to_int(client.token_generation_time + datetime.timedelta(hours=1)) \
-                > time_to_int(datetime.datetime.now()):
+        if time_to_int(client.token_generation_time + datetime.timedelta(hours=5, minutes=30)) > time_to_int(
+                datetime.datetime.now()):
             client.token_generation_time = datetime.datetime.now()
             return Response({"username": client.username,
                              "email": client.email,
@@ -173,7 +173,7 @@ class ClientProfileUpdate(viewsets.ViewSet):
         client = Client.objects.get(token=token)
         if not client:
             return Response("Token is wrong!")
-        if time_to_int(client.token_generation_time + datetime.timedelta(hours=1)) \
+        if time_to_int(client.token_generation_time + datetime.timedelta(hours=5, minutes=30)) \
                 > time_to_int(datetime.datetime.now()):
             client.token_generation_time = datetime.datetime.now()
             if 'username' in data:
@@ -230,6 +230,7 @@ class AdminLogin(viewsets.ViewSet):
         username = data['username']  # todo are these fields available?
         password = data['password']
         admin = Admin.objects.get(username=username)
+
         if admin.password == password:
             token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(100))
             admin.token = token
@@ -256,7 +257,7 @@ class AdminProfileView(viewsets.ViewSet):
         admin = Admin.objects.get(token=token)
         if not admin:
             return Response("Token is wrong!")
-        if time_to_int(admin.token_generation_time + datetime.timedelta(hours=1)) \
+        if time_to_int(admin.token_generation_time + datetime.timedelta(hours=5, minutes=30)) \
                 > time_to_int(datetime.datetime.now()):
             admin.token_generation_time = datetime.datetime.now()
             return Response({"username": admin.username,
@@ -284,8 +285,8 @@ class AdminProfileUpdate(viewsets.ViewSet):
         admin = Admin.objects.get(token=token)
         if not admin:
             return Response("Token is wrong!")
-        if time_to_int(admin.token_generation_time + datetime.timedelta(hours=1)) \
-                > time_to_int(datetime.datetime.now()):
+        if time_to_int(admin.token_generation_time + datetime.timedelta(hours=5, minutes=30)) > time_to_int(
+                datetime.datetime.now()):
             admin.token_generation_time = datetime.datetime.now()
             if 'username' in data:
                 admin.username = data['username']
@@ -300,13 +301,12 @@ class AdminProfileUpdate(viewsets.ViewSet):
         else:
             return Response("Token has expired!")
 
-
 # {
 #     "type": "admin-login",
 #     "username": "Arad",
 #     "password": "1234"
 # }
-#
+# #
 # {
 #     "type": "admin-profile-view",
 #     "token": "F4EIO5VV6Q2F65ETY2IXY4W2KFPEY2FNC2PMJAL82IGZTB4C51FQJIRWTUSMVHMFFTRGLPNSQSVZK8IGO5NOHL360O21CLJWVCAM"
