@@ -27,7 +27,7 @@ class GatewayAPI(viewsets.ViewSet):
 
     """
 
-    def list(self, request):  # todo block calling service after 3 unsuccessful attempts
+    def list(self, request):
         request_type = request.data["type"]
 
         if request_type == 'client-register':
