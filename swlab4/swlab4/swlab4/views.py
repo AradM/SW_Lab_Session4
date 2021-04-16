@@ -30,6 +30,8 @@ class GatewayAPI(viewsets.ViewSet):
             return self.client_profile_update(request.data)
         if request_type == 'admin-register':
             return self.admin_register(request.data)
+        if request_type == 'admin-login':
+            return self.admin_login(request.data)
         return Response("")
 
     def client_register(self, data):
@@ -54,6 +56,11 @@ class GatewayAPI(viewsets.ViewSet):
 
     def admin_register(self, data):
         url = 'http://127.0.0.1:8000/api/admin-register'
+        x = requests.post(url, data=data)
+        return Response(x.text)
+
+    def admin_login(self, data):
+        url = 'http://127.0.0.1:8000/api/admin-login'
         x = requests.post(url, data=data)
         return Response(x.text)
 
@@ -184,9 +191,35 @@ class AdminRegister(viewsets.ViewSet):
     def list(self, request):
         data = request.data
         admin = Admin()
-        admin.username = data['username']
+        admin.username = data['username']  # todo are these fields available?
         admin.password = data['password']
         admin.email = data['email']
         admin.mobile = data['mobile']
         admin.save()
         return Response("Admin registered successfully!")
+
+
+class AdminLogin(viewsets.ViewSet):
+    """
+    Sample input:
+
+        {
+        "type": "admin-login",
+        "username": "Arad",
+        "password": "1234"
+        }
+    """
+
+    def list(self, request):
+        data = request.data
+        username = data['username']  # todo are these fields available?
+        password = data['password']
+        admin = Admin.objects.get(username=username)
+        if admin.password == password:
+            token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(100))
+            admin.token = token
+            admin.token_generation_time = datetime.datetime.now()
+            admin.save()
+            return Response(admin.token)
+        else:
+            return Response("Username or password are wrong!")
