@@ -34,6 +34,9 @@ class GatewayAPI(viewsets.ViewSet):
             return self.admin_login(request.data)
         if request_type == 'admin-profile-view':
             return self.admin_profile_view(request.data)
+        if request_type == 'admin-profile-update':
+            return self.admin_profile_update(request.data)
+
         return Response("")
 
     def client_register(self, data):
@@ -68,6 +71,11 @@ class GatewayAPI(viewsets.ViewSet):
 
     def admin_profile_view(self, data):
         url = 'http://127.0.0.1:8000/api/admin-profile-view'
+        x = requests.post(url, data=data)
+        return Response(x.text)
+
+    def admin_profile_update(self, data):
+        url = 'http://127.0.0.1:8000/api/admin-profile-update'
         x = requests.post(url, data=data)
         return Response(x.text)
 
@@ -257,3 +265,49 @@ class AdminProfileView(viewsets.ViewSet):
                              })
         else:
             return Response("Token has expired!")
+
+
+class AdminProfileUpdate(viewsets.ViewSet):
+    """
+    Sample input:
+    {
+        "type": "admin-profile-view",
+        "token": "random string for token"
+        "username": AradArad
+    }
+
+    """
+
+    def list(self, request):
+        data = request.data
+        token = data['token']
+        admin = Admin.objects.get(token=token)
+        if not admin:
+            return Response("Token is wrong!")
+        if time_to_int(admin.token_generation_time + datetime.timedelta(hours=1)) \
+                > time_to_int(datetime.datetime.now()):
+            admin.token_generation_time = datetime.datetime.now()
+            if 'username' in data:
+                admin.username = data['username']
+            if 'mobile' in data:
+                admin.mobile = data['mobile']
+            if 'password' in data:
+                admin.password = data['password']
+            if 'email' in data:
+                admin.email = data['email']
+            admin.save()
+            return Response("Successfully updated")
+        else:
+            return Response("Token has expired!")
+
+
+# {
+#     "type": "admin-login",
+#     "username": "Arad",
+#     "password": "1234"
+# }
+#
+# {
+#     "type": "admin-profile-view",
+#     "token": "F4EIO5VV6Q2F65ETY2IXY4W2KFPEY2FNC2PMJAL82IGZTB4C51FQJIRWTUSMVHMFFTRGLPNSQSVZK8IGO5NOHL360O21CLJWVCAM"
+# }
