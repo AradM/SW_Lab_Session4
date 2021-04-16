@@ -32,6 +32,8 @@ class GatewayAPI(viewsets.ViewSet):
             return self.admin_register(request.data)
         if request_type == 'admin-login':
             return self.admin_login(request.data)
+        if request_type == 'admin-profile-view':
+            return self.admin_profile_view(request.data)
         return Response("")
 
     def client_register(self, data):
@@ -61,6 +63,11 @@ class GatewayAPI(viewsets.ViewSet):
 
     def admin_login(self, data):
         url = 'http://127.0.0.1:8000/api/admin-login'
+        x = requests.post(url, data=data)
+        return Response(x.text)
+
+    def admin_profile_view(self, data):
+        url = 'http://127.0.0.1:8000/api/admin-profile-view'
         x = requests.post(url, data=data)
         return Response(x.text)
 
@@ -223,3 +230,30 @@ class AdminLogin(viewsets.ViewSet):
             return Response(admin.token)
         else:
             return Response("Username or password are wrong!")
+
+
+class AdminProfileView(viewsets.ViewSet):
+    """
+    Sample input:
+
+        {
+        "type": "admin-profile-view",
+        "token": "random string for token"
+        }
+    """
+
+    def list(self, request):
+        data = request.data
+        token = data['token']
+        admin = Admin.objects.get(token=token)
+        if not admin:
+            return Response("Token is wrong!")
+        if time_to_int(admin.token_generation_time + datetime.timedelta(hours=1)) \
+                > time_to_int(datetime.datetime.now()):
+            admin.token_generation_time = datetime.datetime.now()
+            return Response({"username": admin.username,
+                             "email": admin.email,
+                             "mobile": admin.mobile
+                             })
+        else:
+            return Response("Token has expired!")
