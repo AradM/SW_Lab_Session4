@@ -7,7 +7,7 @@ import requests
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from swlab4.swlab4.models import Client
+from swlab4.swlab4.models import Client, Book
 from swlab4.swlab4.models import Admin
 from swlab4.swlab4.models import Book
 
@@ -349,6 +349,56 @@ class AdminProfileUpdate(viewsets.ViewSet):
                 admin.email = data['email']
             admin.save()
             return Response("Successfully updated")
+        else:
+            return Response("Token has expired!")
+
+
+class ClientSeeBooks(viewsets.ViewSet):
+    """
+    Sample input:
+
+        {
+        "token": "dasgjhfjdahfjdhuisydfauyifusdycadfsycoyufsdc",
+        "category": "Horror", # optional
+        "title": "A Book!"    # optional
+        }
+    """
+
+    def find_book(self, category, title):
+        if not category and not title:
+            books = Book.objects.filter()
+        elif category and title:
+            books = Book.objects.filter(category__icontains=category, title__icontains=title)
+        elif category:
+            books = Book.objects.filter(category__icontains=category)
+        elif title:
+            books = Book.objects.filter(title__icontains=title)
+        ans = []
+        for book in books:
+            ans.append({
+                "title": book.title,
+                "author": book.author,
+                "publisher": book.publisher,
+                "category": book.category
+            })
+        return ans
+
+    def list(self, request):
+        data = request.data
+        token = data['token']
+        client = Client.objects.get(token=token)
+        if not client:
+            return Response("Token is wrong!")
+        if time_to_int(client.token_generation_time + datetime.timedelta(hours=5, minutes=30)) > time_to_int(
+                datetime.datetime.now()):
+            client.token_generation_time = datetime.datetime.now()
+
+            category, title = None, None
+            if "category" in data:
+                category = data['category']
+            if "title" in data:
+                title = data['title']
+            return Response(self.find_book(category, title))
         else:
             return Response("Token has expired!")
 
