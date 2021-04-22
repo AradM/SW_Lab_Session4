@@ -450,6 +450,7 @@ class CreateBook(viewsets.ViewSet):
 
         {
         "type": "create-book",
+        "token" : "aasdhaksjdhask1j23hn1k23jh1n23"
         "title": "Pastoral",
         "author": "James Smith",
         "publisher": "Flower",
@@ -459,13 +460,22 @@ class CreateBook(viewsets.ViewSet):
 
     def list(self, request):
         data = request.data
-        book = Book()
-        book.title = data['title']
-        book.author = data['author']
-        book.publisher = data['publisher']
-        book.category = data['category']
-        book.save()
-        return Response("Book Created Successfully!")
+        token = data['token']
+        admin = Admin.objects.get(token=token)
+        if not admin:
+            return Response("Token is wrong!")
+        if time_to_int(admin.token_generation_time + datetime.timedelta(hours=5, minutes=30)) > time_to_int(
+                datetime.datetime.now()):
+            admin.token_generation_time = datetime.datetime.now()
+            book = Book()
+            book.title = data['title']
+            book.author = data['author']
+            book.publisher = data['publisher']
+            book.category = data['category']
+            book.save()
+            return Response("Book Created Successfully!")
+        else:
+            return Response("Token has expired!")
 
 
 class UpdateBook(viewsets.ViewSet):
@@ -474,6 +484,7 @@ class UpdateBook(viewsets.ViewSet):
 
         {
         "type": "update-book",
+        "token" : "aasdhaksjdhask1j23hn1k23jh1n23"
         "id" : "a book id"
         "title": "Pastoral",
         "author": "James Smith",
@@ -484,21 +495,30 @@ class UpdateBook(viewsets.ViewSet):
 
     def list(self, request):
         data = request.data
-        book_id = data['id']
-        book = Book.objects.get(book_id=book_id)
-        if not book:
-            return Response("Book id is Wrong!")
+        token = data['token']
+        admin = Admin.objects.get(token=token)
+        if not admin:
+            return Response("Token is wrong!")
+        if time_to_int(admin.token_generation_time + datetime.timedelta(hours=5, minutes=30)) > time_to_int(
+                datetime.datetime.now()):
+            admin.token_generation_time = datetime.datetime.now()
+            book_id = data['id']
+            book = Book.objects.get(book_id=book_id)
+            if not book:
+                return Response("Book id is Wrong!")
+            else:
+                if 'title' in data:
+                    book.username = data['title']
+                if 'author' in data:
+                    book.mobile = data['author']
+                if 'category' in data:
+                    book.password = data['category']
+                if 'publisher' in data:
+                    book.email = data['publisher']
+                book.save()
+                return Response("Successfully updated")
         else:
-            if 'title' in data:
-                book.username = data['title']
-            if 'author' in data:
-                book.mobile = data['author']
-            if 'category' in data:
-                book.password = data['category']
-            if 'publisher' in data:
-                book.email = data['publisher']
-            book.save()
-            return Response("Successfully updated")
+            return Response("Token has expired")
 
 
 class ReadBook(viewsets.ViewSet):
@@ -507,19 +527,30 @@ class ReadBook(viewsets.ViewSet):
 
         {
         "type": "read-book",
+        "token" : "aasdhaksjdhask1j23hn1k23jh1n23"
         "id" : "a book id"
         }
     """
 
     def list(self, request):
         data = request.data
-        book_id = data['id']
-        book = Book.objects.get(book_id=book_id)
-        if not book:
-            return Response("Book id is Wrong!")
+        token = data['token']
+        admin = Admin.objects.get(token=token)
+        if not admin:
+            return Response("Token is wrong!")
+        if time_to_int(admin.token_generation_time + datetime.timedelta(hours=5, minutes=30)) > time_to_int(
+                datetime.datetime.now()):
+            admin.token_generation_time = datetime.datetime.now()
+            book_id = data['id']
+            book = Book.objects.get(book_id=book_id)
+            if not book:
+                return Response("Book id is Wrong!")
+            else:
+                return Response(
+                    "title : " + book.title + "\nauthor : " + book.author + "\npublisher : " + book.publisher +
+                    "\ncategory : " + book.category)
         else:
-            return Response("title : " + book.title + "\nauthor : " + book.author + "\npublisher : " + book.publisher +
-                            "\ncategory : " + book.category)
+            return Response("Token has expired")
 
 
 class DeleteBook(viewsets.ViewSet):
@@ -528,19 +559,29 @@ class DeleteBook(viewsets.ViewSet):
 
         {
         "type": "delete-book",
+        "token" : "aasdhaksjdhask1j23hn1k23jh1n23"
         "id" : "a book id"
         }
     """
 
     def list(self, request):
         data = request.data
-        book_id = data['id']
-        book = Book.objects.get(book_id=book_id)
-        if not book:
-            return Response("Book id is Wrong!")
+        token = data['token']
+        admin = Admin.objects.get(token=token)
+        if not admin:
+            return Response("Token is wrong!")
+        if time_to_int(admin.token_generation_time + datetime.timedelta(hours=5, minutes=30)) > time_to_int(
+                datetime.datetime.now()):
+            admin.token_generation_time = datetime.datetime.now()
+            book_id = data['id']
+            book = Book.objects.get(book_id=book_id)
+            if not book:
+                return Response("Book id is Wrong!")
+            else:
+                book.delete()
+                return Response("Book deleted successfully")
         else:
-            book.delete()
-            return Response("Book deleted successfully")
+            return Response("Token has expired")
 
 
 class AdminSeeClients(viewsets.ViewSet):
