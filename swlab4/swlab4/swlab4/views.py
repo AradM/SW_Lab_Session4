@@ -541,3 +541,34 @@ class DeleteBook(viewsets.ViewSet):
         else:
             book.delete()
             return Response("Book deleted successfully")
+
+
+class AdminSeeClients(viewsets.ViewSet):
+    """
+    Sample input:
+
+        {
+        "token": "random string for token"
+        }
+    """
+
+    def list(self, request):
+        data = request.data
+        token = data['token']
+        admin = Admin.objects.get(token=token)
+        if not admin:
+            return Response("Token is wrong!")
+        if time_to_int(admin.token_generation_time + datetime.timedelta(hours=5, minutes=30)) \
+                > time_to_int(datetime.datetime.now()):
+            admin.token_generation_time = datetime.datetime.now()
+            clients = Client.objects.filter()
+            ans = []
+            for client in clients:
+                ans.append({
+                    "username": client.username,
+                    "mobile": client.mobile,
+                    "email": client.email,
+                })
+            return Response(ans)
+        else:
+            return Response("Token has expired!")

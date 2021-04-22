@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 
 from swlab4.swlab4.views import GatewayAPI, ClientRegister, ClientLogin, ClientProfileView, ClientProfileUpdate, \
-    ClientSeeBooks, CURDGateway, CreateBook, UpdateBook, ReadBook, DeleteBook
+    ClientSeeBooks, CURDGateway, CreateBook, UpdateBook, ReadBook, DeleteBook, AdminSeeClients
 from swlab4.swlab4.views import AdminRegister, AdminLogin, AdminProfileView, AdminProfileUpdate
 
 urlpatterns = [
@@ -22,4 +22,5 @@ urlpatterns = [
     path('api/update-book', UpdateBook.as_view({'post': 'list'}), name='update-book'),
     path('api/read-book', ReadBook.as_view({'post': 'list'}), name='read-book'),
     path('api/delete-book', DeleteBook.as_view({'post': 'list'}), name='delete-book'),
+    path('api/admin-see-clients', AdminSeeClients.as_view({'post': 'list'}), name='admin-see-clients'),
 ]
