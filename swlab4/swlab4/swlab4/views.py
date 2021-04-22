@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from swlab4.swlab4.models import Client
 from swlab4.swlab4.models import Admin
+from swlab4.swlab4.models import Book
 
 services_unavailability = {"client-login": 0,
                            "client-register": 0,
@@ -351,13 +352,142 @@ class AdminProfileUpdate(viewsets.ViewSet):
         else:
             return Response("Token has expired!")
 
-# {
-#     "type": "admin-login",
-#     "username": "Arad",
-#     "password": "1234"
-# }
-# #
-# {
-#     "type": "admin-profile-view",
-#     "token": "F4EIO5VV6Q2F65ETY2IXY4W2KFPEY2FNC2PMJAL82IGZTB4C51FQJIRWTUSMVHMFFTRGLPNSQSVZK8IGO5NOHL360O21CLJWVCAM"
-# }
+
+class CURDGateway(viewsets.ViewSet):
+    """
+    Sample input:
+
+    """
+
+    def list(self, request):
+        request_type = request.data["type"]
+
+        if request_type == 'create-book':
+            return self.create_book(request.data)
+        if request_type == 'update-book':
+            return self.update_book(request.data)
+        if request_type == 'read-book':
+            return self.read_book(request.data)
+        if request_type == 'delete-book':
+            return self.delete_book(request.data)
+
+        return Response("")
+
+    def create_book(self, data):
+        url = 'http://127.0.0.1:8000/api/create-book'
+        x = requests.post(url, data=data)
+        return Response(x.text)
+
+    def update_book(self, data):
+        url = 'http://127.0.0.1:8000/api/update-book'
+        x = requests.post(url, data=data)
+        return Response(x.text)
+
+    def read_book(self, data):
+        url = 'http://127.0.0.1:8000/api/read-book'
+        x = requests.post(url, data=data)
+        return Response(x.text)
+
+    def delete_book(self, data):
+        url = 'http://127.0.0.1:8000/api/delete-book'
+        x = requests.post(url, data=data)
+        return Response(x.text)
+
+
+class CreateBook(viewsets.ViewSet):
+    """
+    Sample input:
+
+        {
+        "type": "create-book",
+        "title": "Pastoral",
+        "author": "James Smith",
+        "publisher": "Flower",
+        "category": "Romantic"
+        }
+    """
+
+    def list(self, request):
+        data = request.data
+        book = Book()
+        book.title = data['title']
+        book.author = data['author']
+        book.publisher = data['publisher']
+        book.category = data['category']
+        book.save()
+        return Response("Book Created Successfully!")
+
+
+class UpdateBook(viewsets.ViewSet):
+    """
+    Sample input:
+
+        {
+        "type": "update-book",
+        "id" : "a book id"
+        "title": "Pastoral",
+        "author": "James Smith",
+        "publisher": "Flower",
+        "category": "Romantic"
+        }
+    """
+
+    def list(self, request):
+        data = request.data
+        book_id = data['id']
+        book = Book.objects.get(book_id=book_id)
+        if not book:
+            return Response("Book id is Wrong!")
+        else:
+            if 'title' in data:
+                book.username = data['title']
+            if 'author' in data:
+                book.mobile = data['author']
+            if 'category' in data:
+                book.password = data['category']
+            if 'publisher' in data:
+                book.email = data['publisher']
+            book.save()
+            return Response("Successfully updated")
+
+
+class ReadBook(viewsets.ViewSet):
+    """
+    Sample input:
+
+        {
+        "type": "read-book",
+        "id" : "a book id"
+        }
+    """
+
+    def list(self, request):
+        data = request.data
+        book_id = data['id']
+        book = Book.objects.get(book_id=book_id)
+        if not book:
+            return Response("Book id is Wrong!")
+        else:
+            return Response("title : " + book.title + "\nauthor : " + book.author + "\npublisher : " + book.publisher +
+                            "\ncategory : " + book.category)
+
+
+class DeleteBook(viewsets.ViewSet):
+    """
+    Sample input:
+
+        {
+        "type": "delete-book",
+        "id" : "a book id"
+        }
+    """
+
+    def list(self, request):
+        data = request.data
+        book_id = data['id']
+        book = Book.objects.get(book_id=book_id)
+        if not book:
+            return Response("Book id is Wrong!")
+        else:
+            book.delete()
+            return Response("Book deleted successfully")
