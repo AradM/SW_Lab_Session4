@@ -508,13 +508,13 @@ class UpdateBook(viewsets.ViewSet):
                 return Response("Book id is Wrong!")
             else:
                 if 'title' in data:
-                    book.username = data['title']
+                    book.title = data['title']
                 if 'author' in data:
-                    book.mobile = data['author']
+                    book.author = data['author']
                 if 'category' in data:
-                    book.password = data['category']
+                    book.category = data['category']
                 if 'publisher' in data:
-                    book.email = data['publisher']
+                    book.publisher = data['publisher']
                 book.save()
                 return Response("Successfully updated")
         else:
