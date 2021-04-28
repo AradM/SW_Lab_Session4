@@ -2,8 +2,8 @@ from django.contrib import admin
 from django.urls import path
 
 from swlab4.swlab4.views import GatewayAPI, ClientRegister, ClientLogin, ClientProfileView, ClientProfileUpdate, \
-    ClientSeeBooks, CURDGateway, CreateBook, UpdateBook, ReadBook, DeleteBook, AdminSeeClients
-from swlab4.swlab4.views import AdminRegister, AdminLogin, AdminProfileView, AdminProfileUpdate
+    AdminRegister, AdminLogin, AdminProfileView, AdminProfileUpdate, AdminSeeClients, IsClientTokenAvailable, \
+    IsAdminTokenAvailable
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -16,11 +16,7 @@ urlpatterns = [
     path('api/admin-login', AdminLogin.as_view({'post': 'list'}), name='admin-login'),
     path('api/admin-profile-view', AdminProfileView.as_view({'post': 'list'}), name='admin-profile-view'),
     path('api/admin-profile-update', AdminProfileUpdate.as_view({'post': 'list'}), name='admin-profile-update'),
-    path('api/client-see-books', ClientSeeBooks.as_view({'post': 'list'}), name='client-see-books'),
-    path('api/curd-gateway', CURDGateway.as_view({'post': 'list'}), name='curd-gateway'),
-    path('api/create-book', CreateBook.as_view({'post': 'list'}), name='create-book'),
-    path('api/update-book', UpdateBook.as_view({'post': 'list'}), name='update-book'),
-    path('api/read-book', ReadBook.as_view({'post': 'list'}), name='read-book'),
-    path('api/delete-book', DeleteBook.as_view({'post': 'list'}), name='delete-book'),
     path('api/admin-see-clients', AdminSeeClients.as_view({'post': 'list'}), name='admin-see-clients'),
+    path('api/is-client-token-available', IsClientTokenAvailable.as_view({'post': 'list'}), name='is-client-token-available'),
+    path('api/is-admin-token-available', IsAdminTokenAvailable.as_view({'post': 'list'}), name='is-admin-token-available'),
 ]
