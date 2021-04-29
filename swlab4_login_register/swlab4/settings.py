@@ -25,7 +25,7 @@ SECRET_KEY = '9!cn86+rk@0!6i9+zzsl-x(i@$coy3+vz1l@1^7n9rpvdnyym#'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['2886795346-12345-frugo04.environments.katacoda.com']
 
 
 # Application definition
